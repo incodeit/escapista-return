@@ -1,37 +1,51 @@
 <script setup>
 import { computed, inject, ref, watch } from 'vue'
-import { customerNameFromResponse, lineItemsFromResponse } from '../utils/returnOrderView.js'
+import { customerNameFromResponse } from '../utils/returnOrderView.js'
 import IndietroButton from './IndietroButton.vue'
 
 const global = inject('global')
 
 const rows = ref([])
 
+function itemsFromOrder(order) {
+  const rules = order?.rules
+  if (!Array.isArray(rules) || !rules[0]) return []
+  const raw = rules[0].items
+  return Array.isArray(raw) ? raw : []
+}
+
 function buildRowsFromResponse() {
   const g = global.value
-  let items = lineItemsFromResponse(g.responseStep1)
-  if (!items.length && g.debug) {
-    items = [
-      {
-        id: 'demo-1',
-        name: 'Altai Suede Bag',
-        sku: 'ETW000_PU002_6000_TGU',
-        image: '',
-        maxQty: 1,
-      },
-    ]
-  }
-  rows.value = items.map((item) => ({
-    ...item,
-    selected: false,
-    qty: Math.min(1, item.maxQty),
-  }))
+  let items = itemsFromOrder(g.order)
+  console.log(items);
+
+ 
+  rows.value = items.map((item, index) => {
+    const rawImg = item.product.image
+    let image = ''
+    if (typeof rawImg === 'string') image = rawImg.trim()
+    else if (rawImg && typeof rawImg === 'object')
+      image = String(rawImg.src ?? rawImg.url ?? '').trim()
+    const name = String(item.product.name ?? '').trim() || `Prodotto ${index + 1}`
+    const sku = String(item.product.sku ?? '—')
+    const maxQty = Math.max(1, Number(item.product.quantity ?? item.product.qty ?? 1) || 1)
+    const id = String(item.product.id ?? `${sku}-${index}`)
+    return {
+      id,
+      name,
+      sku,
+      image,
+      maxQty,
+      selected: false,
+      qty: Math.min(1, maxQty),
+    }
+  })
 }
 
 watch(
   () => ({
     step: global.value.step,
-    responseStep1: global.value.responseStep1,
+    order: global.value.order,
     debug: global.value.debug,
   }),
   () => {
@@ -40,7 +54,7 @@ watch(
   { immediate: true, deep: true },
 )
 
-const customerName = computed(() => customerNameFromResponse(global.value.responseStep1))
+const customerName = computed(() => customerNameFromResponse(global.value.order))
 
 const orderTitle = computed(() => {
   const ref = String(global.value.orderId || '').trim() || '—'

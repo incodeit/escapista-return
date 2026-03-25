@@ -33,7 +33,7 @@ function splitStreetLine(addr) {
 }
 
 /**
- * Valori iniziali form “etichetta reso” da responseStep1 + email step1.
+ * Valori iniziali form “etichetta reso” da global.order + email step1.
  */
 export function shippingPrefillFromResponse(data, fallbackEmail = '') {
   const d = data && typeof data === 'object' ? data : {}

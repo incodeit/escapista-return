@@ -13,7 +13,6 @@ const global = ref({
   email: '',
   orderId: '',
   order: null,
-  responseStep1: null,
   step1Error: '',
   step1Submitting: false,
   step: 1,
@@ -56,7 +55,7 @@ async function submitStep1() {
     } catch {
       data = text
     }
-    g.responseStep1 = data
+    g.order = data
 
     if (!res.ok) {
       const msg =
@@ -69,7 +68,7 @@ async function submitStep1() {
 
     g.step = 2
   } catch {
-    g.responseStep1 = null
+    g.order = null
     g.step1Error = 'Connessione non riuscita. Riprova.'
   } finally {
     g.step1Submitting = false

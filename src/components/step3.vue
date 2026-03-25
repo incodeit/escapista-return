@@ -50,7 +50,7 @@ function syncRegionAfterPrefill() {
 
 function applyPrefill() {
   const g = global.value
-  const base = shippingPrefillFromResponse(g.responseStep1, g.email)
+  const base = shippingPrefillFromResponse(g.order, g.email)
   const emptyEnough =
     g.debug &&
     !String(base.nome || '').trim() &&
@@ -101,7 +101,7 @@ function goBack() {
 
 const orderTitle = computed(() => {
   const ref = String(global.value.orderId || '').trim() || '—'
-  const who = customerNameFromResponse(global.value.responseStep1).trim()
+  const who = customerNameFromResponse(global.value.order).trim()
   return who ? `Indirizzo per Ordine ${ref} (${who})` : `Indirizzo per Ordine ${ref}`
 })
 
